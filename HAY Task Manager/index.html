@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HAY Clothing — Task Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-hay-50 text-slate-800 min-h-screen">
+
+  <div class="min-h-screen grid grid-cols-1 md:grid-cols-[280px_1fr]">
+
+    <!-- Sidebar -->
+    <aside class="hidden md:flex hay-sidebar">
+      <div class="flex flex-col gap-4 w-full">
+
+        <!-- Brand -->
+        <div class="flex items-center gap-3 px-4 pt-4">
+          <img src="LOGO  color hay-01.png" alt="HAY Clothing logo" class="h-8 w-auto select-none" />
+          <div class="leading-tight">
+            <div class="font-semibold brand-text">HAY! Clothing</div>
+            <div class="text-xs text-slate-500">Internal Task Manager</div>
+          </div>
+        </div>
+
+        <!-- User chip -->
+        <div id="whoami" class="mx-4 card p-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-hay-700 text-white grid place-items-center">👤</div>
+            <div class="min-w-0">
+              <div class="text-sm">Signed in as</div>
+              <div class="font-semibold truncate" id="whoamiName"></div>
+              <div class="text-xs text-slate-500" id="whoamiRole"></div>
+            </div>
+          </div>
+          <button id="logoutBtn" class="btn-ghost mt-3 w-full">Logout</button>
+        </div>
+
+        <!-- Sections -->
+        <nav id="tabsWrap" class="mx-4">
+          <div class="side-card">
+            <div class="side-card-head">Sections</div>
+            <div id="tabs" class="flex flex-col gap-1 p-2">
+              <button data-tab="my" class="tab-pill active">📥 My Tasks</button>
+              <button data-tab="assigned" class="tab-pill">📤 Assigned by Me</button>
+              <button data-tab="all" class="tab-pill hidden">🌐 All Tasks</button>
+              <button data-tab="users" class="tab-pill hidden">👥 Manage Users</button>
+            </div>
+          </div>
+        </nav>
+
+        <div class="mt-auto p-4 text-[11px] text-slate-500">
+          v2.6-login · Brand #7d2130
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex flex-col min-h-screen">
+
+      <!-- Top bar -->
+      <header class="hay-topbar">
+        <div class="flex items-center gap-3">
+          <img src="LOGO  color hay-01.png" alt="HAY Clothing logo" class="h-7 w-auto md:hidden" />
+          <h1 class="text-lg md:text-xl font-semibold">Team Tasks</h1>
+        </div>
+        <div class="text-xs md:text-sm brand-text/80">HAY! Clothing</div>
+      </header>
+
+      <!-- Content -->
+      <div class="max-w-7xl w-full mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
+
+        <!-- Notifications + Filters -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Notifications -->
+          <div class="lg:col-span-1 card">
+            <div class="card-head">
+              <h2 class="font-semibold">Notifications</h2>
+              <button id="clearNoti" class="btn-ghost text-xs">Clear</button>
+            </div>
+            <div id="notifications" class="max-h-56 overflow-auto p-3 space-y-2 scroll-thin" aria-live="polite"></div>
+          </div>
+
+          <!-- Filters -->
+          <div class="lg:col-span-2 filter-card p-0">
+            <div class="card-head">
+              <div>
+                <div class="font-semibold">Filters</div>
+                <div class="text-xs text-slate-500">Status, teammate, dates & sort</div>
+              </div>
+              <div class="segmented">
+                <button id="viewTable" class="seg-btn active">Table</button>
+                <button id="viewBoard" class="seg-btn">Board</button>
+              </div>
+            </div>
+            <div class="p-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <label class="label">Status</label>
+                <select id="filterStatus" class="input">
+                  <option value="">All</option>
+                  <option>Open</option>
+                  <option>In Progress</option>
+                  <option>Completed</option>
+                </select>
+              </div>
+              <div>
+                <label class="label">User</label>
+                <select id="filterUser" class="input">
+                  <option value="">Any</option>
+                </select>
+              </div>
+              <div>
+                <label class="label">From</label>
+                <input id="filterFrom" type="date" class="input" />
+              </div>
+              <div>
+                <label class="label">To</label>
+                <input id="filterTo" type="date" class="input" />
+              </div>
+              <div class="lg:col-span-2">
+                <label class="label">Sort</label>
+                <select id="sortBy" class="input">
+                  <option value="assignedDate-desc">Assigned Date ↓</option>
+                  <option value="assignedDate-asc">Assigned Date ↑</option>
+                  <option value="dueDate-asc">Due Date ↑</option>
+                  <option value="dueDate-desc">Due Date ↓</option>
+                  <option value="status-asc">Status A→Z</option>
+                  <option value="status-desc">Status Z→A</option>
+                </select>
+              </div>
+              <div class="flex items-end gap-2">
+                <button id="applyFilters" class="btn-primary">Apply</button>
+                <button id="resetFilters" class="btn">Reset</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Create Task -->
+        <section id="createWrap" class="card">
+          <div class="form-head">
+            <h2 class="font-semibold">Create Task</h2>
+            <p class="text-xs text-slate-500">Assigned Date auto • We’ll simulate emails in console</p>
+          </div>
+          <form id="createForm" class="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-4">
+              <label class="label">Assign To</label>
+              <select id="taskAssignTo" required class="input"></select>
+            </div>
+            <div class="md:col-span-8">
+              <label class="label">Title</label>
+              <input id="taskTitle" required placeholder="Short title" class="input" />
+            </div>
+            <div class="md:col-span-8">
+              <label class="label">Description</label>
+              <textarea id="taskDesc" required rows="6" placeholder="What needs to be done?" class="input"></textarea>
+            </div>
+            <div class="md:col-span-4">
+              <label class="label">Due Date</label>
+              <input id="taskDue" type="date" required class="input" />
+            </div>
+            <div class="md:col-span-12">
+              <button class="btn-success">Create</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Panels -->
+        <section id="panel-my"></section>
+        <section id="panel-assigned" class="hidden"></section>
+        <section id="panel-all" class="hidden"></section>
+        <section id="panel-users" class="hidden"></section>
+      </div>
+
+      <!-- Bottom nav (mobile) -->
+      <nav id="bottomTabs" class="md:hidden hay-bottomnav">
+        <button data-tab="my" class="bottom-tab nav-pill active">📥<span>My</span></button>
+        <button data-tab="assigned" class="bottom-tab nav-pill">📤<span>Assigned</span></button>
+        <button data-tab="all" class="bottom-tab nav-pill hidden">🌐<span>All</span></button>
+        <button data-tab="users" class="bottom-tab nav-pill hidden">👥<span>Users</span></button>
+      </nav>
+    </main>
+  </div>
+
+  <!-- Comment Modal -->
+  <div id="commentModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white max-w-xl w-full rounded-2xl shadow-xl border border-slate-200">
+      <div class="card-head">
+        <h3 class="font-semibold">Comments</h3>
+        <button class="btn-ghost" data-close-modal>✕</button>
+      </div>
+      <div class="p-4 space-y-3">
+        <div id="commentThread" class="max-h-60 overflow-auto scroll-thin space-y-2"></div>
+        <div class="flex items-center gap-2">
+          <input id="newComment" placeholder="Write a comment…" class="input flex-1" />
+          <button id="sendComment" class="btn-primary">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="liveRegion" class="sr-only" aria-live="polite"></div>
+
+  <script defer src="script.js"></script>
+</body>
+</html>

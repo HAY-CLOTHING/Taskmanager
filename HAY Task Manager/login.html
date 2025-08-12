@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HAY Clothing — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{ --hay-700:#7d2130; --hay-100:#f7e9ec; --ring:#e2e8f0; --radius:16px; }
+    body{
+      min-height:100vh;
+      background: radial-gradient(1200px 800px at 20% -10%, #ffe7ee 0%, #fff 45%),
+                  radial-gradient(1200px 800px at 120% 110%, #fde9ee 0%, #fff 45%);
+      color:#0f172a;
+    }
+    .login-card{
+      background:#fff; border:2px solid rgba(125,33,48,.45);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 60px -30px rgba(16,24,40,.35);
+      overflow:hidden; position:relative;
+    }
+    .login-card::before{ content:""; position:absolute; inset:0 auto 0 0; width:5px; background:#7d2130; }
+    .brand { color:#7d2130; }
+    .input{ width:100%; padding:.75rem .9rem; border:1px solid #cbd5e1; border-radius:.9rem }
+    .input:focus{ outline:none; border-color:#99293b; box-shadow:0 0 0 3px rgba(125,33,48,.15) }
+    .btn{ width:100%; padding:.75rem 1rem; border-radius:.9rem; font-weight:700; color:#fff;
+          background:#7d2130; border:1px solid #7d2130 }
+    .btn:hover{ background:#99293b }
+    .error{ display:none; background:#fee2e2; border:1px solid #fecaca; color:#7f1d1d;
+            padding:.6rem .8rem; border-radius:.75rem; font-size:.9rem }
+    .hint{ font-size:.75rem; color:#64748b }
+  </style>
+</head>
+<body class="grid place-items-center p-6">
+
+  <main class="w-full max-w-md login-card">
+    <header class="p-6 border-b border-[var(--ring)]">
+      <div class="text-sm text-slate-500">Welcome to</div>
+      <h1 class="text-2xl font-semibold"><span class="brand">HAY! Clothing</span> — Internal Task Manager</h1>
+    </header>
+
+    <section class="p-6 space-y-4">
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm text-slate-600 mb-1">User name (or email)</label>
+          <input id="username" class="input" placeholder="e.g. Sangeeth or sangeeth@hayclothing.in" autocomplete="username" />
+        </div>
+        <div>
+          <label for="password" class="block text-sm text-slate-600 mb-1">Password</label>
+          <input id="password" type="password" class="input" placeholder="Enter password" autocomplete="current-password" />
+        </div>
+
+        <div id="error" class="error">Invalid username or password.</div>
+
+        <button class="btn" type="submit">Sign in</button>
+        <div class="hint">You control credentials in this file. Keep it private.</div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Must match index/script
+    const STORAGE_KEY = 'hay-v2-6-login';
+
+    // Directory: username can be name or email (case-insensitive)
+    const users = [
+      { id:'u1', name:'Sribalaji', email:'hayanalyst1@gmail.com', role:'Admin',
+        usernames:['sribalaji','hayanalyst1@gmail.com'], password:'1111' },
+      { id:'u2', name:'Sangeeth',  email:'Sangeeth@hayclothing.in', role:'MD',
+        usernames:['sangeeth','sangeeth@hayclothing.in'], password:'2222' },
+      { id:'u3', name:'Brindha',   email:'haybrindha@gmail.com', role:'Employee',
+        usernames:['brindha','haybrindha@gmail.com'], password:'3333' },
+      { id:'u4', name:'Gokul',     email:'haygokul@gmail.com', role:'Employee',
+        usernames:['gokul','haygokul@gmail.com'], password:'4444' },
+      { id:'u5', name:'Neha Gupta', email:'neha@hay.clo', role:'Employee',
+        usernames:['neha','neha gupta','neha@hay.clo'], password:'5555' },
+      // add more as needed…
+    ];
+
+    const $ = (id)=>document.getElementById(id);
+    const form = $('loginForm'), $u = $('username'), $p = $('password'), err = $('error');
+
+    // Skip if already logged in
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const cur = raw ? JSON.parse(raw).currentUserId : '';
+      if (cur) location.replace('index.html');
+    } catch {}
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const uname = ($u.value || '').trim().toLowerCase();
+      const pass  = ($p.value || '').trim();
+
+      const match = users.find(u => u.usernames.some(x => x.toLowerCase() === uname));
+      if (!match || pass !== match.password) {
+        err.style.display = 'block';
+        $p.focus();
+        return;
+      }
+
+      // merge store; set currentUserId; seed users if none
+      let store = {};
+      try { store = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; } catch {}
+      store.currentUserId = match.id;
+      if (!Array.isArray(store.users) || !store.users.length) {
+        store.users = users.map(({usernames,password, ...rest}) => rest); // no passwords in storage
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      location.replace('index.html');
+    });
+  </script>
+</body>
+</html>
